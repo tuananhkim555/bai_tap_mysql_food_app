@@ -56,11 +56,11 @@ CREATE TABLE foods (
 )
 
 INSERT INTO foods (foods_id, foods_name, description) VALUES
-(1, "su kem", "bánh được làm từ kem"),
-(2, "gỏi gà", "gỏi được làm từ ga"),
-(3, "gỏi vịt", "gỏi được làm từ vịt"),
-(4, "gỏi cá", "gỏi được từ cá"),
-(5, "gỏi heo", "gỏi được làm từ heo")
+(1, "nhà hàng 1", "bánh được làm từ kem"),
+(2, "nhà hàng 2", "gỏi được làm từ ga"),
+(3, "nhà hàng 3", "gỏi được làm từ vịt"),
+(4, "nhà hàng 4", "gỏi được từ cá"),
+(5, "nhà hàng 5", "gỏi được làm từ heo")
 
 
 CREATE TABLE orders (
@@ -158,7 +158,7 @@ ORDER BY users.users_id DESC
 -- Tìm 5 người đã orders nhiều nhất.
 -- LIMIT 5: giới hạn kết quả chỉ trả ra 5
 -- Khi một người mua hàng thì sẽ xuất hiện bên trong orders
--- Thì mình sẽ tìm người dùng xuất hiện nhiều nhất bên trong bảng orders
+-- Thì mình s tìm người dùng xuất hiện nhiều nhất bên trong bảng orders
 -- Sắp xếp giảm dần để cho số COUNT lên trên đầu (người dùng mua nhiều nhất)
 
 SELECT COUNT(orders.users_id) AS "Số lần mua", users.full_name, users.email 
@@ -213,8 +213,102 @@ FROM orders
 RIGHT JOIN users on orders.users_id = users.users_id
 WHERE orders.users_id is NULL
 
+
 -- Bước 5: đổi lại sắp xếp của các bảng
 SELECT *
 FROM users
 LEFT JOIN orders on orders.users_id = users.users_id
-WHERE orders.users_id is NULL
+LEFT JOIN like_res on like_res.users_id = users.users_id
+LEFT JOIN rate_res on rate_res.users_id = users.users_id
+WHERE 
+orders.users_id is NULL AND 
+like_res.user_id is NULL AND
+rate_res.user_id is NULL
+
+
+-- BÀI TẬP FOOD ******************************************************
+
+CREATE TABLE like_res (
+    like_id INT PRIMARY KEY AUTO_INCREMENT,
+    users_id INT,
+    foods_id INT,
+    date_like DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (users_id) REFERENCES users(users_id),
+    FOREIGN KEY (foods_id) REFERENCES foods(foods_id)
+);
+
+INSERT INTO like_res (users_id, foods_id) VALUES
+(1, 1),
+(1, 2),
+(2, 1),
+(3, 3),
+(4, 2),
+(5, 1),
+(2, 3),
+(3, 2),
+(4, 1),
+(5, 3);
+
+-- 1 5 TÌM NGƯỜI LIKE NHIỀU NHẤT
+SELECT users.users_id, users.full_name, COUNT(*) AS like_count
+FROM like_res
+INNER JOIN users ON like_res.users_id = users.users_id
+GROUP BY users.users_id, users.full_name
+ORDER BY like_count DESC
+LIMIT 5;
+
+
+
+-- 2 BÀI TẬP 2: Tìm 2 nhà hàng có lượt like nhiều nhất
+SELECT foods.foods_id, foods.foods_name, COUNT(*) AS like_count
+FROM like_res
+INNER JOIN foods ON like_res.foods_id = foods.foods_id
+GROUP BY foods.foods_id, foods.foods_name
+ORDER BY like_count DESC
+LIMIT 2;
+
+-- 3 BÀI TẬP 3 : Tìm người đã đặt hàng nhiều nhất
+SELECT users.users_id, users.full_name, COUNT(*) AS order_count
+FROM orders
+INNER JOIN users ON orders.users_id = users.users_id
+GROUP BY users.users_id, users.full_name
+ORDER BY order_count DESC
+LIMIT 1;
+
+-- 4 BÀI TẬP 4: Tìm người dùng không hoạt động (không đặt hàng, không like, không đánh giá nhà hàng)
+SELECT u.users_id, u.full_name
+FROM users u
+LEFT JOIN orders o ON u.users_id = o.users_id
+LEFT JOIN like_res lr ON u.users_id = lr.users_id
+WHERE o.users_id IS NULL AND lr.users_id IS NULL;
+
+-- 1. Tìm 5 người đã like món ăn nhiều nhất
+SELECT users.users_id, users.full_name, COUNT(*) AS like_count
+FROM like_res
+INNER JOIN users ON like_res.users_id = users.users_id
+GROUP BY users.users_id, users.full_name
+ORDER BY like_count DESC
+LIMIT 5;
+
+-- 2. Tìm 2 món ăn có lượt like nhiều nhất
+SELECT foods.foods_id, foods.foods_name, COUNT(*) AS like_count
+FROM like_res
+INNER JOIN foods ON like_res.foods_id = foods.foods_id
+GROUP BY foods.foods_id, foods.foods_name
+ORDER BY like_count DESC
+LIMIT 2;
+
+-- 3. Tìm người đã đặt hàng nhiều nhất
+SELECT users.users_id, users.full_name, COUNT(*) AS order_count
+FROM orders
+INNER JOIN users ON orders.users_id = users.users_id
+GROUP BY users.users_id, users.full_name
+ORDER BY order_count DESC
+LIMIT 1;
+
+-- 4. Tìm người dùng không hoạt động trong hệ thống
+SELECT u.users_id, u.full_name
+FROM users u
+LEFT JOIN orders o ON u.users_id = o.users_id
+LEFT JOIN like_res lr ON u.users_id = lr.users_id
+WHERE o.users_id IS NULL AND lr.users_id IS NULL;
