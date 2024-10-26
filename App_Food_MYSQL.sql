@@ -1,122 +1,265 @@
---  bảng users (người dùng)
+-- Kiểm tra version
+SELECT VERSION();
+
+
+-- AUTO_INCREMENT: tự động tăng (bắt đầu từ 1), đảm bảo cột khoá chính luôn luôn là duy nhất, và không trùng nhau
+
 CREATE TABLE users (
-    users_id INT PRIMARY KEY AUTO_INCREMENT,
-    full_name VARCHAR(255),
-    email VARCHAR(255),
-    pass_word VARCHAR(255)
-);
+	users_id INT PRIMARY KEY AUTO_INCREMENT,
+	full_name VARCHAR(255),
+	email VARCHAR(255),
+	pass_word VARCHAR(255)
+)
 
---  bảng foods (món ăn)
+-- Thêm dữ liệu
+INSERT INTO users (users_id, full_name, email, pass_word) VALUES
+(1, "Nguyen Van A", "A@gmail.com", "1234"),
+(2, "Nguyen Van B", "B@gmail.com", "1234"),
+(3, "Nguyen Van C", "C@gmail.com", "1234"),
+(4, "Nguyen Van D", "D@gmail.com", "1234"),
+(5, "Nguyen Van E", "E@gmail.com", "1234");
+
+-- Truy vấn
+-- 1 - FROM: sẽ chạy trước 
+-- 2 - SELECT: chỉ đỉnh kết quả đổ ra
+SELECT *
+FROM users
+
+-- muốn chỉ đỉnh chỉ có 2 cột full_name và email đổ ra
+SELECT email, full_name
+FROM users
+
+SELECT full_name AS "Họ và tên", email AS "đây là email"
+FROM users
+
+-- LIMIT
+SELECT *
+FROM users
+LIMIT 2
+
+-- WHERE: lọc dữ liệu
+SELECT *
+FROM users
+WHERE users_id = 2
+
+-- BÀI TẬP NHỎ
+-- tạo table có tên là: foods
+-- field: foods_id là kiểu số, khoá chính, tự động tăng
+-- field: foods_name là kiểu chữ,
+-- field: description là kiểu chữ
+
+
 CREATE TABLE foods (
-    foods_id INT PRIMARY KEY AUTO_INCREMENT,
-    foods_name VARCHAR(255),
-    description VARCHAR(255)
-);
+	foods_id INT PRIMARY KEY AUTO_INCREMENT,
+	foods_name VARCHAR(255),
+	description VARCHAR(255)
+)
 
---  bảng orders (đơn hàng)
+INSERT INTO foods (foods_id, foods_name, description) VALUES
+(1, "su kem", "bánh được làm từ kem"),
+(2, "gỏi gà", "gỏi được làm từ ga"),
+(3, "gỏi vịt", "gỏi được làm từ vịt"),
+(4, "gỏi cá", "gỏi được từ cá"),
+(5, "gỏi heo", "gỏi được làm từ heo")
+
+
 CREATE TABLE orders (
-    orders_id INT PRIMARY KEY AUTO_INCREMENT,
-    users_id INT,
-    foods_id INT,
-    FOREIGN KEY (users_id) REFERENCES users(users_id),
-    FOREIGN KEY (foods_id) REFERENCES foods(foods_id)
-);
+	orders_id INT PRIMARY KEY AUTO_INCREMENT,
+	
+	users_id INT,
+	foods_id INT,
 
---  bảng like_res (lượt thích nhà hàng)
-CREATE TABLE like_res (
-    user_id INT,
-    res_id INT,
-    date_like DATETIME,
-    PRIMARY KEY (user_id, res_id),
-    FOREIGN KEY (user_id) REFERENCES users(users_id)
-);
+	FOREIGN KEY (users_id) REFERENCES users (users_id),
+	FOREIGN KEY (foods_id) REFERENCES foods (foods_id)
+)
 
---  bảng restaurant (nhà hàng)
-CREATE TABLE restaurant (
-    res_id INT PRIMARY KEY AUTO_INCREMENT,
-    res_name VARCHAR(255),
-    image VARCHAR(255),
-    description VARCHAR(255)
-);
+INSERT INTO orders (orders_id, users_id, foods_id) VALUES
+(1, 1, 2),
+(2, 3, 1),
+(3, 2, 5),
+(4, 1, 3),
+(5, 3, 2)
 
--- bảng rate_res (đánh giá nhà hàng)
-CREATE TABLE rate_res (
-    user_id INT,
-    res_id INT,
-    amount INT,
-    date_rate DATETIME,
-    FOREIGN KEY (user_id) REFERENCES users(users_id),
-    FOREIGN KEY (res_id) REFERENCES restaurant(res_id)
-);
+-- 1 - 1 (ONE - to - ONE)
+-- Mô tả: Một bản ghi trong bảng A sẽ chỉ liên kết tới một bản ghi trong bảng B
 
--- 2
+-- 1 - N (ONE - to - MANY)
+-- Mô tả: Một bản ghi trong bảng A có thể có nhiều bản ghi tương ứng bên trong bảng B
 
---  dữ liệu vào bảng users
-INSERT INTO users (full_name, email, pass_word) VALUES
-('Nguyen Van A', 'A@gmail.com', '1234'),
-('Nguyen Van B', 'B@gmail.com', '1234'),
-('Nguyen Van C', 'C@gmail.com', '1234'),
-('Nguyen Van D', 'D@gmail.com', '1234'),
-('Nguyen Van E', 'E@gmail.com', '1234'),
-('Nguyen Van F', 'F@gmail.com', '1234'),
-('Nguyen Van G', 'G@gmail.com', '1234'),
-('Nguyen Van H', 'H@gmail.com', '1234'),
-('Nguyen Van W', 'W@gmail.com', '1234'),
-('Nguyen Van Z', 'Z@gmail.com', '1234');
-
---  dữ liệu vào bảng foods
-INSERT INTO foods (foods_name, description) VALUES
-('Bánh su kem', 'Bánh được làm từ kem'),
-('Gỏi gà', 'Gỏi được làm từ gà'),
-('Gỏi vịt', 'Gỏi được làm từ vịt'),
-('Gỏi cá', 'Gỏi được làm từ cá'),
-('Gỏi heo', 'Gỏi được làm từ heo');
-
--- T dữ liệu vào bảng orders
-INSERT INTO orders (users_id, foods_id) VALUES
-(1, 2),
-(3, 1),
-(2, 5),
-(1, 3),
-(3, 2);
-
---  dữ liệu vào bảng like_res
-INSERT INTO like_res (user_id, res_id, date_like) VALUES
-(1, 1, NOW()),
-(1, 2, NOW()),
-(2, 1, NOW()),
-(3, 3, NOW()),
-(4, 2, NOW());
+-- N - N (MANY - to - MANY)
+-- Mô tả: Một bản ghi trong bảng A có thể liên kết nhiều với bản ghi bên bảng B, và ngược lại	
 
 
--- GIẢI BÀI TẬP
--- 1. Tìm 5 người đã like nhà hàng nhiều nhất
+
+-- INNER JOIN
+SELECT *
+FROM orders
+INNER JOIN users ON users.users_id = orders.users_id
+
+-- trường hợp 2 bảng có số lương hàng bằng nhau
+-- sẽ lấy bảng ở FROM làm chuẩn để đi so sánh
+
+-- trường hợp 2 bảng có số lượng hàng khác nhau
+-- sẽ lấy bảng nào ít hàng hơn làm chuẩn để đi so sánh
+
+
+
+-- LEFT JOIN: sẽ lấy tất cả các bản ghi bên TRÁI, ngay cả khi không có bản ghi khớp với bản ghi bên PHẢI
+SELECT *
+FROM users
+LEFT JOIN orders ON orders.users_id = users.users_id 
+
+
+-- RIGHT JOIN: sẽ lấy tất cả các bản ghi bên PHẢI, ngay cả khi không có bản ghi khớp với bản ghi bên TRÁI 
+SELECT *
+FROM orders
+RIGHT JOIN users ON orders.users_id = users.users_id 
+
+
+-- CROSS JOIN: sẽ lấy tất cả
+SELECT *
+FROM orders
+CROSS JOIN users
+
+-- GROUP BY: sẽ nhóm những dữ liệu giống nhau và thường được sử dụng với COUNT(), MAX(), MIN(), SUM(), AVG()
+-- Query 1 ERROR at Line 125: : Column 'users_id' in group statement is ambiguous
+-- vì đang chỉ định cho GROUP BY là nhóm theo cột users_id mà lại có 2 cột users_id, cho nên GROUP BY không biết chọn cộn nào => GROUP BY users.users_id
+SELECT *
+FROM users
+INNER JOIN orders on orders.users_id = users.users_id
+GROUP BY users_id
+
+
+-- Query 1 ERROR at Line 132: : Expression #5 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'db_app_food.orders.orders_id' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+-- Khi dùng GROUP BY thì phải đảm bảo dữ liệu trong hàng phải giống nhau
+-- => chỉ định các cột có dữ liệu giống nhau ở SELECT
+SELECT *
+FROM users
+INNER JOIN orders on orders.users_id = users.users_id
+GROUP BY users.users_id
+
+
+-- COUNT: đếm số lượng trong lúc nhóm (GROUP BY)
+SELECT users.users_id, users.full_name, users.pass_word, orders.users_id, COUNT(users.users_id) AS "Số lượng"
+FROM users
+INNER JOIN orders on orders.users_id = users.users_id
+GROUP BY users.users_id
+
+-- ORDER BY: sắp xếp
+-- ASC: sắp xếp tăng dần
+-- DESC: sắp xếp giảm dần
+SELECT users.users_id, users.full_name, users.pass_word, orders.users_id, COUNT(users.users_id) AS "Số lượng"
+FROM users
+INNER JOIN orders on orders.users_id = users.users_id
+GROUP BY users.users_id
+ORDER BY users.users_id DESC
+
+
+-- Tìm 5 người đã orders nhiều nhất.
+-- LIMIT 5: giới hạn kết quả chỉ trả ra 5
+-- Khi một người mua hàng thì sẽ xuất hiện bên trong orders
+-- Thì mình sẽ tìm người dùng xuất hiện nhiều nhất bên trong bảng orders
+-- Sắp xếp giảm dần để cho số COUNT lên trên đầu (người dùng mua nhiều nhất)
+
+SELECT COUNT(orders.users_id) AS "Số lần mua", users.full_name, users.email 
+FROM orders
+INNER JOIN users on orders.users_id = users.users_id
+GROUP BY orders.users_id
+ORDER BY `Số lần mua` DESC
+LIMIT 5
+
+-- Tìm 2 thức ăn có lượt mua nhiều nhất
+SELECT COUNT(orders.foods_id), orders.foods_id, foods.foods_id, foods.foods_name, foods.description
+FROM orders
+INNER JOIN foods on orders.foods_id = foods.foods_id
+GROUP BY orders.foods_id
+ORDER BY `COUNT(orders.foods_id)` DESC
+LIMIT 2
+
+
+-- Tìm người đã đặt hàng nhiều nhất.
+SELECT COUNT(orders.users_id) AS "Số lần mua", users.full_name, users.email
+FROM orders
+INNER JOIN users on orders.users_id = users.users_id
+GROUP BY orders.users_id
+ORDER BY `Số lần mua` DESC
+LIMIT 1
+
+-- Tìm người dùng không hoạt động trong hệ thống
+-- (không đặt hàng, không like, không đánh giá nhà
+-- hàng).
+
+-- Bước 1: lấy tất cả dữ liệu bên trong orders
+SELECT *
+FROM orders
+INNER JOIN users on orders.users_id = users.users_id
+
+-- Bước 2: lấy thêm thông tin của bảng users
+SELECT *
+FROM orders
+INNER JOIN users on orders.users_id = users.users_id
+
+-- Bước 3: lấy thêm những người dùng không tồn tại bên trong bảng orders
+SELECT *
+FROM orders
+RIGHT JOIN users on orders.users_id = users.users_id
+WHERE orders.users_id is NULL
+
+
+-- Bước 4: lọc kết quả bên bảng orders tìm xem user_id là NULL thì lấy ra 
+-- => WHERE orders.users_id is NULL
+SELECT *
+FROM orders
+RIGHT JOIN users on orders.users_id = users.users_id
+WHERE orders.users_id is NULL
+
+
+-- Bước 5: đổi lại sắp xếp của các bảng
+SELECT *
+FROM users
+LEFT JOIN orders on orders.users_id = users.users_id
+LEFT JOIN like_res on like_res.users_id = users.users_id
+LEFT JOIN rate_res on rate_res.users_id = users.users_id
+WHERE 
+orders.users_id is NULL AND 
+like_res.user_id is NULL AND
+rate_res.user_id is NULL
+
+-- BÀI TẬP FOOD ************************************************
+-- 1 TÌM NGƯỜI LIKE NHIỀU NHẤT
 SELECT user_id, COUNT(*) AS like_count
 FROM like_res
 GROUP BY user_id
 ORDER BY like_count DESC
 LIMIT 5;
 
--- 2. Tìm 2 nhà hàng có lượt like nhiều nhất
+-- 2 BÀI TẬP 2: Tìm 5 người đã like nhà hàng nhiều nhất
+SELECT user_id, COUNT(*) AS like_count
+FROM like_res
+GROUP BY user_id
+ORDER BY like_count DESC
+LIMIT 5;
+
+-- 3 BÀI TẬP 2: Tìm 2 nhà hàng có lượt like nhiều nhất
 SELECT res_id, COUNT(*) AS like_count
 FROM like_res
 GROUP BY res_id
 ORDER BY like_count DESC
 LIMIT 2;
 
--- 3. Tìm người đã đặt hàng nhiều nhất
-SELECT users_id, COUNT(*) AS order_count
-FROM orders
-GROUP BY users_id
+-- 4 BÀI TẬP 3 : Tìm người đã đặt hàng nhiều nhất
+SELECT user_id, COUNT(*) AS order_count
+FROM `order`
+GROUP BY user_id
 ORDER BY order_count DESC
 LIMIT 1;
 
--- 4. Tìm người dùng không hoạt động trong hệ thống
-SELECT u.users_id, u.full_name
-FROM users u
-LEFT JOIN orders o ON u.users_id = o.users_id
-LEFT JOIN like_res lr ON u.users_id = lr.user_id
-LEFT JOIN rate_res rr ON u.users_id = rr.user_id
-WHERE o.users_id IS NULL 
-  AND lr.user_id IS NULL 
+-- 5 BÀI TẬP 4: Tìm người dùng không hoạt động (không đặt hàng, không like, không đánh giá nhà hàng)
+SELECT u.user_id, u.full_name
+FROM user u
+LEFT JOIN `order` o ON u.user_id = o.user_id
+LEFT JOIN like_res lr ON u.user_id = lr.user_id
+LEFT JOIN rate_res rr ON u.user_id = rr.user_id
+WHERE o.user_id IS NULL
+  AND lr.user_id IS NULL
   AND rr.user_id IS NULL;
